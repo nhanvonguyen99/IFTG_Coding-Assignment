@@ -21,7 +21,7 @@ namespace SettlementBookingSystem.Controllers
         }
 
         [HttpPost]
-        [ConcurrencyLimit(timeoutInSeconds: 5)]
+        [ConcurrencyLimit(timeoutInSeconds: 0)]
         [ProducesResponseType(typeof(BookingDto), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status409Conflict)]

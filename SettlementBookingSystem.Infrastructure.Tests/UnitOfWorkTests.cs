@@ -9,7 +9,7 @@ using Xunit;
 
 namespace SettlementBookingSystem.Infrastructure.Tests
 {
-    public class UnitOfWorkTests
+    public class UnitOfWorkTests : IDisposable
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly BookingDbContext _context;
@@ -17,14 +17,11 @@ namespace SettlementBookingSystem.Infrastructure.Tests
         public UnitOfWorkTests()
         {
             var options = new DbContextOptionsBuilder<BookingDbContext>()
-                .UseInMemoryDatabase(databaseName: "TestDatabase")
+                .UseInMemoryDatabase(databaseName: "UnitOfWorkTests")
                 .Options;
 
             _context = new BookingDbContext(options);
             _unitOfWork = new UnitOfWork(_context);
-
-            _context.Database.EnsureDeleted();
-            _context.Database.EnsureCreated();
         }
 
         [Fact]
@@ -44,6 +41,13 @@ namespace SettlementBookingSystem.Infrastructure.Tests
             result.Should().NotBeNull();
             result.Name.Should().Be(booking.Name);
             result.StartTime.Should().Be(booking.StartTime);
+        }
+
+        public void Dispose()
+        {
+            GC.SuppressFinalize(this);
+            _context.Database.EnsureDeleted();
+            _context.Dispose();
         }
     }
 }

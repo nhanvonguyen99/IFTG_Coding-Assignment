@@ -1,18 +1,24 @@
-﻿using System.Net.Http.Json;
+﻿using System;
+using System.Net;
+using System.Net.Http;
+using System.Net.Http.Json;
 using System.Threading.Tasks;
 using FluentAssertions;
-using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.Extensions.DependencyInjection;
+using SettlementBookingSystem.Infrastructure.DbContexts;
 using Xunit;
 
 namespace SettlementBookingSystem.Tests
 {
     public class BookingControllerTests
+        : IClassFixture<CustomWebApplicationFactory<Program>>,
+            IDisposable
     {
-        private readonly WebApplicationFactory<Program> _factory;
+        private readonly CustomWebApplicationFactory<Program> _factory;
 
-        public BookingControllerTests()
+        public BookingControllerTests(CustomWebApplicationFactory<Program> factory)
         {
-            _factory = new WebApplicationFactory<Program>();
+            _factory = factory;
         }
 
         [Fact]
@@ -49,7 +55,85 @@ namespace SettlementBookingSystem.Tests
             var response = await client.PostAsJsonAsync("/booking", booking);
 
             // Assert
-            response.StatusCode.Should().Be(System.Net.HttpStatusCode.BadRequest);
+            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        }
+
+        [Fact]
+        public async Task CreateBooking_ShouldReturnConflict_WhenTimeIsNotAvailable()
+        {
+            // Arrange
+            var client = _factory.CreateClient();
+            var booking = new { Name = "Test Booking", BookingTime = "10:00" };
+
+            // Simulate a conflict by creating a booking at the same time
+            await client.PostAsJsonAsync("/booking", booking);
+
+            // Act
+            var response = await client.PostAsJsonAsync("/booking", booking);
+
+            // Assert
+            response.StatusCode.Should().Be(System.Net.HttpStatusCode.Conflict);
+        }
+
+        [Fact]
+        public async Task CreateBooking_ShouldReturnTooManyRequests_WhenRateLimitExceeded()
+        {
+            // Arrange
+            var client = _factory.CreateClient();
+            var booking = new { Name = "Test Booking", BookingTime = "10:00" };
+            var tasks = new Task<HttpResponseMessage>[5];
+            for (int i = 0; i < 5; i++)
+            {
+                tasks[i] = client.PostAsJsonAsync(
+                    "/booking",
+                    new
+                    {
+                        Name = $"Test Booking {i}",
+                        BookingTime = TimeSpan.FromHours(10 + i).ToString(@"hh\:mm"),
+                    }
+                );
+            }
+
+            // Act
+            var responses = await Task.WhenAll(tasks);
+
+            // Assert
+            responses.Should().Contain(r => r.StatusCode == HttpStatusCode.TooManyRequests);
+            responses.Should().Contain(r => r.StatusCode == HttpStatusCode.OK);
+        }
+
+        [Fact]
+        public async Task CreateBooking_ShouldReturnOk_WhenRateLimitNotExceeded()
+        {
+            // Arrange
+            var client = _factory.CreateClient();
+            var booking = new { Name = "Test Booking", BookingTime = "10:00" };
+            var tasks = new Task<HttpResponseMessage>[4];
+            for (int i = 0; i < 4; i++)
+            {
+                tasks[i] = client.PostAsJsonAsync(
+                    "/booking",
+                    new
+                    {
+                        Name = $"Test Booking {i}",
+                        BookingTime = TimeSpan.FromHours(10 + i).ToString(@"hh\:mm"),
+                    }
+                );
+            }
+
+            // Act
+            var responses = await Task.WhenAll(tasks);
+
+            // Assert
+            responses.Should().OnlyContain(r => r.StatusCode == HttpStatusCode.OK);
+        }
+
+        public void Dispose()
+        {
+            GC.SuppressFinalize(this);
+            var scope = _factory.Services.CreateScope();
+            var dbContext = scope.ServiceProvider.GetRequiredService<BookingDbContext>();
+            dbContext.Database.EnsureDeleted();
         }
     }
 }

@@ -18,7 +18,7 @@ namespace SettlementBookingSystem.Infrastructure.Repositories
         public Task<bool> CheckTimeOverlap(TimeSpan startTime, TimeSpan endTime)
         {
             return _dbContext.Bookings.AnyAsync(b =>
-                b.StartTime < endTime && b.EndTime > startTime
+                startTime < b.EndTime && endTime > b.StartTime
             );
         }
 

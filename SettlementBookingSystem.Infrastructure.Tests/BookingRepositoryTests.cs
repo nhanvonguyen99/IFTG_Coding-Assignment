@@ -9,7 +9,7 @@ using Xunit;
 
 namespace SettlementBookingSystem.Infrastructure.Tests
 {
-    public class BookingRepositoryTests
+    public class BookingRepositoryTests : IDisposable
     {
         private readonly BookingDbContext _context;
         private readonly IBookingRepository _repository;
@@ -17,14 +17,11 @@ namespace SettlementBookingSystem.Infrastructure.Tests
         public BookingRepositoryTests()
         {
             var options = new DbContextOptionsBuilder<BookingDbContext>()
-                .UseInMemoryDatabase(databaseName: "TestDatabase")
+                .UseInMemoryDatabase(databaseName: "BookingRepositoryTests")
                 .Options;
 
             _context = new BookingDbContext(options);
             _repository = new BookingRepository(_context);
-
-            _context.Database.EnsureDeleted();
-            _context.Database.EnsureCreated();
         }
 
         [Fact]
@@ -118,6 +115,13 @@ namespace SettlementBookingSystem.Infrastructure.Tests
 
             // Assert
             result.Should().BeNull();
+        }
+
+        public void Dispose()
+        {
+            GC.SuppressFinalize(this);
+            _context.Database.EnsureDeleted();
+            _context.Dispose();
         }
     }
 }
