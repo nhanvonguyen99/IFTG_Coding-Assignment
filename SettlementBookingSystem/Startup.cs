@@ -11,6 +11,7 @@ using SettlementBookingSystem.Application;
 using SettlementBookingSystem.Application.Exceptions;
 using SettlementBookingSystem.Infrastructure;
 using SettlementBookingSystem.ProblemDetails;
+using SettlementBookingSystem.RateLimiters;
 
 namespace SettlementBookingSystem
 {
@@ -29,6 +30,10 @@ namespace SettlementBookingSystem
             services.AddApplication();
 
             services.AddInfrastructure();
+
+            services.AddSingleton<IConcurrencyRateLimiter>(provider => new ConcurrencyRateLimiter(
+                maxConcurrentRequests: 4
+            ));
 
             services.AddProblemDetails(options =>
             {

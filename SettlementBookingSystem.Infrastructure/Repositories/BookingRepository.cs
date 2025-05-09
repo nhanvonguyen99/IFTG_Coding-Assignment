@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SettlementBookingSystem.Domain;
@@ -16,14 +15,16 @@ namespace SettlementBookingSystem.Infrastructure.Repositories
             _dbContext = dbContext;
         }
 
+        public Task<bool> CheckTimeOverlap(TimeSpan startTime, TimeSpan endTime)
+        {
+            return _dbContext.Bookings.AnyAsync(b =>
+                b.StartTime < endTime && b.EndTime > startTime
+            );
+        }
+
         public async Task Create(Booking booking)
         {
             await _dbContext.Bookings.AddAsync(booking);
-        }
-
-        public Task<bool> Exists(TimeSpan bookingTime)
-        {
-            return _dbContext.Bookings.AnyAsync(b => b.BookingTime == bookingTime);
         }
 
         public async Task<Booking> GetById(Guid id)

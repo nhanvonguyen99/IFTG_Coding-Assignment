@@ -22,13 +22,18 @@ namespace SettlementBookingSystem.Infrastructure.Tests
 
             _context = new BookingDbContext(options);
             _repository = new BookingRepository(_context);
+
+            _context.Database.EnsureDeleted();
+            _context.Database.EnsureCreated();
         }
 
         [Fact]
         public async Task Create_ShouldAddBooking()
         {
             // Arrange
-            var booking = new Booking("Test Booking", TimeSpan.FromHours(1));
+            var startTime = TimeSpan.FromHours(1);
+            var endTime = startTime.Add(TimeSpan.FromHours(1));
+            var booking = new Booking("Test Booking", startTime, endTime);
 
             // Act
             await _repository.Create(booking);
@@ -38,41 +43,58 @@ namespace SettlementBookingSystem.Infrastructure.Tests
             var result = await _repository.GetById(booking.Id);
             result.Should().NotBeNull();
             result.Name.Should().Be(booking.Name);
-            result.BookingTime.Should().Be(booking.BookingTime);
+            result.StartTime.Should().Be(booking.StartTime);
         }
 
         [Fact]
-        public async Task Exists_ShouldReturnTrue_WhenBookingTimeExists()
+        public async Task CheckTimeOverlap_ShouldReturnTrue_WhenTimeOverlap()
         {
             // Arrange
-            var booking = new Booking("Test Booking", TimeSpan.FromHours(1));
+            var startTime = TimeSpan.FromHours(9);
+            var endTime = startTime.Add(TimeSpan.FromHours(1));
+            // 9 AM to 10 AM
+            var booking = new Booking("Test Booking", startTime, endTime);
             await _repository.Create(booking);
             await _context.SaveChangesAsync();
 
             // Act
-            var exists = await _repository.Exists(booking.BookingTime);
+            // 9:30 AM to 10:30 AM
+            var startTimeToCheck = TimeSpan.FromHours(9.5);
+            var endTimeToCheck = startTimeToCheck.Add(TimeSpan.FromHours(1));
+            var isOverlapped = await _repository.CheckTimeOverlap(startTimeToCheck, endTimeToCheck);
 
             // Assert
-            exists.Should().BeTrue();
+            isOverlapped.Should().BeTrue();
         }
 
         [Fact]
-        public async Task Exists_ShouldReturnFalse_WhenBookingTimeDoesNotExist()
+        public async Task CheckTimeOverlap_ShouldReturnFalse_WhenTimeDoesNotOverlap()
         {
             // Arrange
+            var startTime = TimeSpan.FromHours(9);
+            var endTime = startTime.Add(TimeSpan.FromHours(1));
+
+            var booking = new Booking("Test Booking", startTime, endTime);
+            await _repository.Create(booking);
+            await _context.SaveChangesAsync();
 
             // Act
-            var exists = await _repository.Exists(TimeSpan.FromHours(2));
+            // 10 AM to 11 AM
+            var startTimeToCheck = TimeSpan.FromHours(10);
+            var endTimeToCheck = startTimeToCheck.Add(TimeSpan.FromHours(1));
+            var isOverlaped = await _repository.CheckTimeOverlap(startTimeToCheck, endTimeToCheck);
 
             // Assert
-            exists.Should().BeFalse();
+            isOverlaped.Should().BeFalse();
         }
 
         [Fact]
         public async Task GetById_ShouldReturnBooking_WhenExists()
         {
             // Arrange
-            var booking = new Booking("Test Booking", TimeSpan.FromHours(1));
+            var startTime = TimeSpan.FromHours(1);
+            var endTime = startTime.Add(TimeSpan.FromHours(1));
+            var booking = new Booking("Test Booking", startTime, endTime);
             await _repository.Create(booking);
             await _context.SaveChangesAsync();
 
@@ -82,7 +104,7 @@ namespace SettlementBookingSystem.Infrastructure.Tests
             // Assert
             result.Should().NotBeNull();
             result.Name.Should().Be(booking.Name);
-            result.BookingTime.Should().Be(booking.BookingTime);
+            result.StartTime.Should().Be(booking.StartTime);
         }
 
         [Fact]

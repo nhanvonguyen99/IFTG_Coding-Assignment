@@ -7,6 +7,6 @@ namespace SettlementBookingSystem.Domain
     {
         Task<Booking> GetById(Guid id);
         Task Create(Booking booking);
-        Task<bool> Exists(TimeSpan bookingTime);
+        Task<bool> CheckTimeOverlap(TimeSpan startTime, TimeSpan endTime);
     }
 }

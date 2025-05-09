@@ -36,7 +36,7 @@ namespace SettlementBookingSystem.Application.UnitTests
             var command = new CreateBookingCommand { Name = "Test Booking", BookingTime = "10:00" };
 
             _bookingRepositoryMock
-                .Setup(x => x.Exists(TimeSpan.Parse(command.BookingTime)))
+                .Setup(x => x.CheckTimeOverlap(It.IsAny<TimeSpan>(), It.IsAny<TimeSpan>()))
                 .ReturnsAsync(false);
 
             // Act
@@ -55,7 +55,7 @@ namespace SettlementBookingSystem.Application.UnitTests
             var command = new CreateBookingCommand { Name = "Test Booking", BookingTime = "10:00" };
 
             _bookingRepositoryMock
-                .Setup(x => x.Exists(TimeSpan.Parse(command.BookingTime)))
+                .Setup(x => x.CheckTimeOverlap(It.IsAny<TimeSpan>(), It.IsAny<TimeSpan>()))
                 .ReturnsAsync(true);
 
             // Act

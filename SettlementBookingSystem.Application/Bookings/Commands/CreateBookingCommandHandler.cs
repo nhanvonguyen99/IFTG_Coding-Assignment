@@ -28,12 +28,15 @@ namespace SettlementBookingSystem.Application.Bookings.Commands
             CancellationToken cancellationToken
         )
         {
-            if (await _bookingRepository.Exists(TimeSpan.Parse(request.BookingTime)))
+            var startTime = TimeSpan.Parse(request.BookingTime);
+            var endTime = startTime.Add(TimeSpan.FromHours(1)); // Assuming a default duration of 1 hour
+
+            if (await _bookingRepository.CheckTimeOverlap(startTime, endTime))
             {
                 throw new ConflictException($"Booking time {request.BookingTime} already exists.");
             }
 
-            var booking = new Booking(request.Name, TimeSpan.Parse(request.BookingTime));
+            var booking = new Booking(request.Name, startTime, endTime);
             await _bookingRepository.Create(booking);
             await _unitOfWork.SaveChanges(cancellationToken);
             return booking.ToDto();

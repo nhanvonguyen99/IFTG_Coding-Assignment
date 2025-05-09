@@ -22,13 +22,18 @@ namespace SettlementBookingSystem.Infrastructure.Tests
 
             _context = new BookingDbContext(options);
             _unitOfWork = new UnitOfWork(_context);
+
+            _context.Database.EnsureDeleted();
+            _context.Database.EnsureCreated();
         }
 
         [Fact]
         public async Task SaveChanges_ShouldCommitTransaction()
         {
             // Arrange
-            var booking = new Booking("Test Booking", TimeSpan.FromHours(1));
+            var startTime = TimeSpan.FromHours(1);
+            var endTime = startTime.Add(TimeSpan.FromHours(1));
+            var booking = new Booking("Test Booking", startTime, endTime);
             await _context.Bookings.AddAsync(booking);
 
             // Act
@@ -38,7 +43,7 @@ namespace SettlementBookingSystem.Infrastructure.Tests
             var result = await _context.Bookings.FindAsync(booking.Id);
             result.Should().NotBeNull();
             result.Name.Should().Be(booking.Name);
-            result.BookingTime.Should().Be(booking.BookingTime);
+            result.StartTime.Should().Be(booking.StartTime);
         }
     }
 }

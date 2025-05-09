@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SettlementBookingSystem.Application.Bookings.Commands;
 using SettlementBookingSystem.Application.Bookings.Dtos;
+using SettlementBookingSystem.RateLimiters;
 
 namespace SettlementBookingSystem.Controllers
 {
@@ -20,6 +21,7 @@ namespace SettlementBookingSystem.Controllers
         }
 
         [HttpPost]
+        [ConcurrencyLimit(timeoutInSeconds: 5)]
         [ProducesResponseType(typeof(BookingDto), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status409Conflict)]

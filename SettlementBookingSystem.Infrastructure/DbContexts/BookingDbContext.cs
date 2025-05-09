@@ -15,7 +15,7 @@ namespace SettlementBookingSystem.Infrastructure.DbContexts
             modelBuilder.Entity<Booking>().HasKey(b => b.Id);
             modelBuilder.Entity<Booking>().Property(b => b.Id).ValueGeneratedOnAdd();
             modelBuilder.Entity<Booking>().Property(b => b.Name).IsRequired();
-            modelBuilder.Entity<Booking>().Property(b => b.BookingTime).IsRequired();
+            modelBuilder.Entity<Booking>().Property(b => b.StartTime).IsRequired();
             base.OnModelCreating(modelBuilder);
         }
     }
