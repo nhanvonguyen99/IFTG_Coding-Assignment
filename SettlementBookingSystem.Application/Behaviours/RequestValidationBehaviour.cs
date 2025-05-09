@@ -19,7 +19,7 @@ namespace SettlementBookingSystem.Application.Behaviours
             _validators = validators;
         }
 
-        public async Task<TResponse> Handle(
+        public Task<TResponse> Handle(
             TRequest request,
             CancellationToken cancellationToken,
             RequestHandlerDelegate<TResponse> next
@@ -46,7 +46,7 @@ namespace SettlementBookingSystem.Application.Behaviours
                 }
             }
 
-            return await next();
+            return next();
         }
     }
 }
