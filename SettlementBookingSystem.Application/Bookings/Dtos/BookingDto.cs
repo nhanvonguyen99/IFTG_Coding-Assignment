@@ -4,9 +4,9 @@ namespace SettlementBookingSystem.Application.Bookings.Dtos
 {
     public class BookingDto
     {
-        public BookingDto()
+        public BookingDto(Guid id)
         {
-            BookingId = Guid.NewGuid();
+            BookingId = id;
         }
 
         public Guid BookingId { get; }

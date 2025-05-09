@@ -13,4 +13,8 @@
     <PackageReference Include="RangeTree" Version="3.0.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="../SettlementBookingSystem.Domain/SettlementBookingSystem.Domain.csproj" />
+  </ItemGroup>
+
 </Project>

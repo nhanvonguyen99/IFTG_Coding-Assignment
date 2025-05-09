@@ -13,6 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="../SettlementBookingSystem.Infrastructure/SettlementBookingSystem.Infrastructure.csproj" />
     <ProjectReference Include="..\SettlementBookingSystem.Application\SettlementBookingSystem.Application.csproj" />
   </ItemGroup>
 

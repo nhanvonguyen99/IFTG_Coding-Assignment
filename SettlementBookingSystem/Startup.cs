@@ -9,6 +9,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using SettlementBookingSystem.Application;
 using SettlementBookingSystem.Application.Exceptions;
+using SettlementBookingSystem.Infrastructure;
 using SettlementBookingSystem.ProblemDetails;
 
 namespace SettlementBookingSystem
@@ -26,6 +27,8 @@ namespace SettlementBookingSystem
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddApplication();
+
+            services.AddInfrastructure();
 
             services.AddProblemDetails(options =>
             {
