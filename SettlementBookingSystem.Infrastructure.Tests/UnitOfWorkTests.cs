@@ -28,7 +28,7 @@ namespace SettlementBookingSystem.Infrastructure.Tests
         public async Task SaveChanges_ShouldCommitTransaction()
         {
             // Arrange
-            var startTime = TimeSpan.FromHours(1);
+            var startTime = TimeSpan.FromHours(9);
             var endTime = startTime.Add(TimeSpan.FromHours(1));
             var booking = new Booking("Test Booking", startTime, endTime);
             await _context.Bookings.AddAsync(booking);

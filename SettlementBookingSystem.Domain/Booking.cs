@@ -4,6 +4,8 @@ namespace SettlementBookingSystem.Domain
 {
     public class Booking
     {
+        private static readonly TimeSpan BusinessStartTime = TimeSpan.FromHours(9);
+        private static readonly TimeSpan BusinessEndTime = TimeSpan.FromHours(17);
         public Guid Id { get; set; }
         public string Name { get; private set; }
         public TimeSpan StartTime { get; private set; }
@@ -13,21 +15,26 @@ namespace SettlementBookingSystem.Domain
         {
             if (string.IsNullOrWhiteSpace(name))
                 throw new ArgumentException("Name cannot be empty.", nameof(name));
-
-            if (startTime < TimeSpan.Zero || startTime > TimeSpan.FromHours(24))
+            if (
+                startTime < BusinessStartTime
+                || startTime > BusinessEndTime.Subtract(TimeSpan.FromHours(1))
+            )
                 throw new ArgumentOutOfRangeException(
                     nameof(startTime),
-                    "Booking time must be between 0 and 24 hours."
+                    "Booking time must be between 9 and 17 hours."
                 );
 
-            if (endTime < TimeSpan.Zero || endTime > TimeSpan.FromHours(24))
+            if (endTime < BusinessStartTime || endTime > BusinessEndTime)
                 throw new ArgumentOutOfRangeException(
                     nameof(endTime),
-                    "End time must be between 0 and 24 hours."
+                    "End time must be between 9 and 17 hours."
                 );
 
             if (endTime <= startTime)
                 throw new ArgumentException("End time must be greater than start time.");
+
+            if (endTime - startTime < TimeSpan.FromHours(1))
+                throw new ArgumentException("Booking duration must be at least 1 hour.");
 
             Name = name;
             StartTime = startTime;

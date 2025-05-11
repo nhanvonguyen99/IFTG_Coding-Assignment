@@ -1,0 +1,35 @@
+### Create a new booking
+POST http://localhost:5000/Booking
+Content-Type: application/json
+
+{
+    "name": "John Doe",
+    "bookingTime": "10:00"
+}
+
+### Create another booking (example with different data)
+POST http://localhost:5000/Booking
+Content-Type: application/json
+
+{
+    "name": "Jane Smith",
+    "bookingTime": "11:00"
+}
+
+### Create booking with outside business hours
+POST http://localhost:5000/Booking
+Content-Type: application/json
+
+{
+    "name": "Jane Olive",
+    "bookingTime": "8:00"
+}
+
+### Create booking with conflict slot
+POST http://localhost:5000/Booking
+Content-Type: application/json
+
+{
+    "name": "Jane Olive 1",
+    "bookingTime": "10:30"
+}
