@@ -37,7 +37,7 @@ This project is an ASP.NET Core Web API for managing settlement bookings. It exp
       ```json
       {
         "name": "string",
-        "bookingTime": "string (ISO 8601 date/time)"
+        "bookingTime": "string (hours:minutes)"
       }
       ```
     - **Response:**
