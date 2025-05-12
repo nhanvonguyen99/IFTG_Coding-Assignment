@@ -62,18 +62,29 @@ namespace SettlementBookingSystem.Tests
         {
             // Arrange
             var client = _factory.CreateClient();
-            var booking = new { Name = "Test Booking", BookingTime = "10:00" };
 
             // Simulate a conflict by creating a booking at the same time
-            await client.PostAsJsonAsync("/booking", booking);
-            await client.PostAsJsonAsync("/booking", booking);
-            await client.PostAsJsonAsync("/booking", booking);
-            await client.PostAsJsonAsync("/booking", booking);
+            await client.PostAsJsonAsync(
+                "/booking",
+                new { Name = "Test Booking 1", BookingTime = "10:00" }
+            );
+            await client.PostAsJsonAsync(
+                "/booking",
+                new { Name = "Test Booking 1", BookingTime = "10:10" }
+            );
+            await client.PostAsJsonAsync(
+                "/booking",
+                new { Name = "Test Booking 1", BookingTime = "10:15" }
+            );
+            await client.PostAsJsonAsync(
+                "/booking",
+                new { Name = "Test Booking 1", BookingTime = "10:20" }
+            );
 
             // Act
             var response = await client.PostAsJsonAsync(
                 "/booking",
-                new { Name = "Test Booking 2", BookingTime = "10:00" }
+                new { Name = "Test Booking 2", BookingTime = "10:30" }
             );
 
             // Assert
