@@ -15,11 +15,12 @@ namespace SettlementBookingSystem.Infrastructure.Repositories
             _dbContext = dbContext;
         }
 
-        public Task<bool> CheckTimeOverlap(TimeSpan startTime, TimeSpan endTime)
+        public async Task<bool> CheckTimeOverlap(TimeSpan startTime, TimeSpan endTime)
         {
-            return _dbContext.Bookings.AnyAsync(b =>
+            var slots = await _dbContext.Bookings.CountAsync(b =>
                 startTime < b.EndTime && endTime > b.StartTime
             );
+            return slots >= 4;
         }
 
         public async Task Create(Booking booking)

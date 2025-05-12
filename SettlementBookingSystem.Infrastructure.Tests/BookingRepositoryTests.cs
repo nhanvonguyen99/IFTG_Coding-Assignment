@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
@@ -51,7 +52,15 @@ namespace SettlementBookingSystem.Infrastructure.Tests
             var endTime = startTime.Add(TimeSpan.FromHours(1));
             // 9 AM to 10 AM
             var booking = new Booking("Test Booking", startTime, endTime);
-            await _repository.Create(booking);
+            await _context.Bookings.AddRangeAsync(
+                new List<Booking>
+                {
+                    booking,
+                    new("Test Booking 2", startTime, endTime),
+                    new("Test Booking 3", startTime, endTime),
+                    new("Test Booking 4", startTime, endTime),
+                }
+            );
             await _context.SaveChangesAsync();
 
             // Act
@@ -77,7 +86,7 @@ namespace SettlementBookingSystem.Infrastructure.Tests
 
             // Act
             // 10 AM to 11 AM
-            var startTimeToCheck = TimeSpan.FromHours(10);
+            var startTimeToCheck = TimeSpan.FromHours(9);
             var endTimeToCheck = startTimeToCheck.Add(TimeSpan.FromHours(1));
             var isOverlaped = await _repository.CheckTimeOverlap(startTimeToCheck, endTimeToCheck);
 

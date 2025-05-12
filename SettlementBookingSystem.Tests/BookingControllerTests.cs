@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Net;
-using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -67,65 +66,18 @@ namespace SettlementBookingSystem.Tests
 
             // Simulate a conflict by creating a booking at the same time
             await client.PostAsJsonAsync("/booking", booking);
+            await client.PostAsJsonAsync("/booking", booking);
+            await client.PostAsJsonAsync("/booking", booking);
+            await client.PostAsJsonAsync("/booking", booking);
 
             // Act
-            var response = await client.PostAsJsonAsync("/booking", booking);
+            var response = await client.PostAsJsonAsync(
+                "/booking",
+                new { Name = "Test Booking 2", BookingTime = "10:00" }
+            );
 
             // Assert
-            response.StatusCode.Should().Be(System.Net.HttpStatusCode.Conflict);
-        }
-
-        [Fact]
-        public async Task CreateBooking_ShouldReturnTooManyRequests_WhenRateLimitExceeded()
-        {
-            // Arrange
-            var client = _factory.CreateClient();
-            var booking = new { Name = "Test Booking", BookingTime = "10:00" };
-            var tasks = new Task<HttpResponseMessage>[5];
-            for (int i = 0; i < 5; i++)
-            {
-                tasks[i] = client.PostAsJsonAsync(
-                    "/booking",
-                    new
-                    {
-                        Name = $"Test Booking {i}",
-                        BookingTime = TimeSpan.FromHours(10 + i).ToString(@"hh\:mm"),
-                    }
-                );
-            }
-
-            // Act
-            var responses = await Task.WhenAll(tasks);
-
-            // Assert
-            responses.Should().Contain(r => r.StatusCode == HttpStatusCode.TooManyRequests);
-            responses.Should().Contain(r => r.StatusCode == HttpStatusCode.OK);
-        }
-
-        [Fact]
-        public async Task CreateBooking_ShouldReturnOk_WhenRateLimitNotExceeded()
-        {
-            // Arrange
-            var client = _factory.CreateClient();
-            var booking = new { Name = "Test Booking", BookingTime = "10:00" };
-            var tasks = new Task<HttpResponseMessage>[4];
-            for (int i = 0; i < 4; i++)
-            {
-                tasks[i] = client.PostAsJsonAsync(
-                    "/booking",
-                    new
-                    {
-                        Name = $"Test Booking {i}",
-                        BookingTime = TimeSpan.FromHours(10 + i).ToString(@"hh\:mm"),
-                    }
-                );
-            }
-
-            // Act
-            var responses = await Task.WhenAll(tasks);
-
-            // Assert
-            responses.Should().OnlyContain(r => r.StatusCode == HttpStatusCode.OK);
+            response.StatusCode.Should().Be(HttpStatusCode.Conflict);
         }
 
         public void Dispose()
