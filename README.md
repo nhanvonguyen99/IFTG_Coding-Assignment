@@ -44,7 +44,6 @@ This project is an ASP.NET Core Web API for managing settlement bookings. It exp
       - `200 OK` with a JSON object containing the `bookingId`.
       - `400 Bad Request` for validation errors.
       - `409 Conflict` if a booking conflict occurs.
-      - `429 Too many requests` when too many concurrent requests are being processed (limited to 4 at a time).
       - `500 Internal Server Error` for unhandled exceptions.
 
   ## Example Requests
@@ -64,7 +63,6 @@ This project is an ASP.NET Core Web API for managing settlement bookings. It exp
 
 ## Additional Details
 
-- **Rate Limiting:** The API limits concurrent booking requests to 4 at a time.
 - **Error Handling:** Standardized error responses using Problem Details (RFC 7807).
 - **Testing:**
   - Unit tests are located in the `SettlementBookingSystem.Application.UnitTests`, `SettlementBookingSystem.Tests` and `SettlementBookingSystem.Infrastructure.Tests` projects.
